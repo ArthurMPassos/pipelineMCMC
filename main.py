@@ -1,3 +1,4 @@
+#Teste clean code
 __author__ = "Adriana Valio, Beatriz Duque, Felipe Pereira"
 __copyright__ = "..."
 __credits__ = ["Universidade Presbiteriana Mackenzie, CRAAM"]
