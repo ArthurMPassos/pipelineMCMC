@@ -71,3 +71,11 @@ def converte(rsun,rpj,au):
     semiEixoRaioStar = ((1.469*(10**8))*au)/raioStar
 
     return raioStar,raioPlanetaRstar,semiEixoRaioStar
+
+def converteRStar(rsun):
+    '''
+    funcao para converter parametros da estrela 
+    '''
+    raioStar=rsun*696340 #multiplicando pelo raio solar em Km 
+
+    return raioStar

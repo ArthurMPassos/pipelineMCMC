@@ -47,12 +47,12 @@ from matplotlib import pyplot
 import matplotlib.pyplot as plt
 
 import lightkurve as lk
-from lightkurve import search_lightcurvefile
+from lightkurve import search_lightcurve
 
 
 class Modelo:
 
-    def __init__(self,estrela, eclipse):
+    def __init__(self,estrela,periodo):
         '''
         parâmetro estrela :: classe estrela 
         parâmetro eclipse :: classe Eclipse
@@ -67,15 +67,7 @@ class Modelo:
         self.star_name = estrela.getStarName() #nome da estrela
         self.cadence = estrela.getCadence() #cadencia da estrela (short ou long)
 
-        #coletando objetos de Eclipse
-        self.raioPlan = eclipse.getRaioPlan()
-        self.R_jup = eclipse.getRplanJup()
-        self.AU = eclipse.getSemiEixo() #semieixo em UA
-        self.semiEixoRaioStar = eclipse.getsemiEixoRaioStar() #semieixo em relacao ao raio da estrela
-        self.porb = eclipse.getPeriodo()
-        self.inc = eclipse.getInc()
-        self.ecc,self.anom = eclipse.getEccAnom()
-        self.lua = eclipse.getLua()
+        self.porb = periodo
 
         #variaveis que serao retornadas a partir da função rd_data
         self.time = 0.
@@ -99,7 +91,7 @@ class Modelo:
         '''
     ##--------------------------------------------------------------------------------------------------------------------------------------------------##
     # utiiza-se o PDCSAP_FLUX porque será realizado a análise no trânsito.
-        lc = search_lightcurvefile(self.star_name, cadence = self.cadence).download_all().PDCSAP_FLUX
+        lc = search_lightcurve(self.star_name, cadence = self.cadence).download_all().PDCSAP_FLUX
         time = [] # time = array com os dados de tempo
         flux = [] # flux = array com os dados de fluxo
         flux_err = [] # flux_err = array com os dados de erro do fluxo
@@ -313,7 +305,7 @@ class Modelo:
 
     #--------------------------------------------------#
     def retornaParametros(self):
-        return self.u1,self.u2,self.porb,self.time,self.flux,self.flux_err,self.raioPlan,self.AU,self.inc, self.x0, self.nt,self.ts_model
+        return self.u1,self.u2,self.n,self.porb,self.time,self.flux,self.flux_err,self.x0, self.nt
     
     def setTime(self,time):
         self.time = time
@@ -345,7 +337,7 @@ class Tratamento :
         parâmetro nt :: 
         '''
         self.modelo = modelo
-        self.u1,self.u2,self.porb,self.time,self.flux,self.flux_err,self.raioPlan,self.AU,self.inc,self.x0,self.nt,self.ts_model = modelo.retornaParametros()
+        self.u1,self.u2,self.tamanhoMatriz,self.porb,self.time,self.flux,self.flux_err,self.x0,self.nt = modelo.retornaParametros()
 
     def cut_transit_single(self):
         
@@ -454,6 +446,8 @@ class Tratamento :
         parâmetro smoothed_LC[bb] :: curva de luz Smoothed
         '''
         
+        self.ts_model = numpy.array(self.getTempoHoras())
+
         if selection == 0:
             tran_selec = numpy.random.randint(int(self.nt), size=(1, ntransit))[0]
         
@@ -495,8 +489,15 @@ class Tratamento :
         
         return self.time_phased[bb], self.smoothed_LC[bb]
 
-        def gettime_phased(self):
-            return self.time_phased
+    def gettime_phased(self):
+        return self.time_phased
+    
+    def geraTempoHoras(self,intervaloTempo):
+        tempoHoras = (numpy.arange(self.tamanhoMatriz)-self.tamanhoMatriz/2)*intervaloTempo/60.   # em horas
+        self.tempoHoras= tempoHoras
+    
+    def getTempoHoras(self):
+        return self.tempoHoras
 
 
 class Ajuste:
