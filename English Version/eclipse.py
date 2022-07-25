@@ -104,13 +104,13 @@ class Eclipse:
         Creation of the eclipse class, which will return the light curve of the planet's transit around the star
 
         ****parameters assigned to the planet****
-        :period parameter: rotation period of the planet
-        :parameter semiAxisRaioStar: semi axis of the planet in relation to the radius of the star
-        :parameter semiaxisUA: semiaxis of the planet in UA
-        :InclinationAngle parameter: tilt angle of the planet
-        :RayPlanetaRstar parameter: radius of the planet in relation to the radius of the star
-        :RayPlanJup parameter: radius of the planet in relation to the radius of Jupiter
-        :luna parameter: moon orbiting the planet (enters as True or False)
+        :periodo parameter: rotation period of the planet
+        :semiEixoRaioStar parameter: semi axis of the planet in relation to the radius of the star
+        :semiEixoUA parameter: semiaxis of the planet in UA
+        :anguloInclinacao parameter: tilt angle of the planet
+        :raioPlanetaRstar parameter: radius of the planet in relation to the radius of the star
+        :raioPlanJup parameter: radius of the planet in relation to the radius of Jupiter
+        :lua parameter: moon orbiting the planet (enters as True or False)
         :ecc parameter: eccentricity of the planet's orbit
         :anom parameter: planet orbit anomaly
         :anim parameter: checks if the animation will be shown to the user (True by default)

@@ -8,13 +8,13 @@ __email__ = "biaduque7@hotmail.com"
 __status__ = "Production"
 
 '''
-Este programa simula a plotagem de uma estrela com manchas, através de parâmetros como raio, intensidade, escurecimento 
-de limbo, etc.
-As bibliotecas importadas são: 
+This program simulates the plot of a star with spots, through parameters such as radius, intensity, dimming
+of limbo, etc.
+The imported libraries are:
 math
 matplotlib
 numpy
-verify:função criada para validar entradas, por exemplo numeros nao float/int ou negativos
+verify: function created to validate inputs, for example non-float/int or negative numbers
 '''
 
 
@@ -33,18 +33,18 @@ import platform
 
 class Estrela:
     '''
-    A classe estrela recebe como objeto o raio, intensidade maxima, coeficientes de escurecimento de limbo.
-    A estrela é formata em uma matriz de tamanho defeault 856.
-    São objetos pertencentes a classe os parâmetros passados à mancha, como: raio, intensidade, longitude e latitude 
-    em relação à estrela. 
-    ************ PARÂMETROS DA ESTRELA***************
-    :parâmetro raio: O raio da estrela em pixel
-    :parâmetro raioSun: O raio da estrela em unidades de Rsun
-    :parâmetro intensidadeMaxima: Intensidade do centro da estrela
-    :parâmetro coeficienteHum: Coeficiente de escurecimento de limbo 
-    :parâmetro coeficienteDois: Coeficiete de escurecimento de limbo
-    :parâmetro tamanhoMatriz: Tamanho da matriz em que será construída a estrela 
-    :parâmetro estrela: Estrela construida com os coeficientes de escurecimento de limbo
+    The star class receives as object the radius, maximum intensity, limb darkening coefficients.
+    The star is formatted in an array of default size 856.
+    The parameters passed to the spot are objects belonging to the class, such as: radius, intensity, longitude and latitude
+    in relation to the star.
+    ************ STAR PARAMETERS***************
+    :raio parameter: The radius of the star in pixels
+    :raioSun parameter: The radius of the star in units of Rsun
+    :intensidadeMaxima parameter: Intensity of the center of the star
+    :coeficienteHum parameter: Limbo darkening coefficient
+    :coeficienteDois parameter: Limbo darkening coefficient
+    :tamanhoMatriz parameter: Size of the matrix in which the star will be built
+    :estrela parameter: Star constructed with the limbo darkening coefficients
     '''
    
 
@@ -86,49 +86,48 @@ class Estrela:
 
     def manchas(self,r,intensidadeMancha,lat,longt):
         '''
-        Função onde é criada a(s) mancha(s) da estrela. Todos os parâmetros 
-        são relacionados ao tamanho da estrela, podendo o usuário escolher valores 
-        ou selecionar a opção default.
-        *********INICIO DOS PARÂMETROS DA MANCHA*******
-        :parâmetro raioMancha: Raio da mancha em relação ao raio da estrela 
-        :parâmetro intensidadeMancha: Intensidade da mancha em funcao da intensidade maxima da estrela
-        :parâmetro latitudeMancha: Coordenada de latitude da mancha em relação à estrela
-        :parâmetro longitudeMancha: Coordenada de longitude da mancha em relação à estrela 
-        
+        Function where the star spot(s) is created. all parameters
+         are related to the size of the star, the user being able to choose values
+         or select the default option.
+         ********START OF STAIN PARAMETERS*******
+         :raioMancha parameter: Radius of the spot in relation to the radius of the star
+         :intensidadeMancha parameter: Spot intensity as a function of the star's maximum intensity
+         :latitudeMancha parameter: Latitude coordinate of the spot in relation to the star
+         :longitudeMancha parameter: Longitude coordinate of the spot in relation to the star
         '''
-        # Parametros da mancha
-        # #r=0.05 (teste)
-        # intensidadeMancha=0.5 (teste)
-        # coordenadas da mancha em graus
-        #teste latitude=-30
-        #teste longitude=20
+        # Spots parameter
+        # #r=0.05 (for tests)
+        # intensidadeMancha=0.5 (for tests)
+        # spot coordinates in degrees
+        #test latitude=-30
+        #test longitude=20
 
-        self.raioMancha = self.raio * r  # raio em funcao do raio da estrela em pixels
-        self.intensidadeMancha = intensidadeMancha # intensidade da mancha em funcao da intensidade maxima da estrela
+        self.raioMancha = self.raio * r  # radius as a function of the star's radius in pixels
+        self.intensidadeMancha = intensidadeMancha # spot intensity as a function of the star's maximum intensity
 
-        #coordenadas de posicionamento da mancha em graus
+        #spot positioning coordinates in degrees
 
 
         degreeToRadian = np.pi/180. #A read-only variable containing the floating-point value used to convert degrees to radians.
         self.latitudeMancha  = lat * degreeToRadian 
         self.longitudeMancha =  longt * degreeToRadian
 
-        #posicao da mancha em pixels em relacao ao centro da estrela
+        #position of the spot in pixels with respect to the center of the star
         ys=self.raio*np.sin(self.latitudeMancha)  
         xs=self.raio*np.cos(self.latitudeMancha)*np.sin(self.longitudeMancha)
         anguloHelio=np.arccos(np.cos(self.latitudeMancha)*np.cos(self.longitudeMancha))
 
         
-        # efeito de projecao pela mancha estar a um anguloHeliocentrico do centro da estrela - elipcidade
-        yy = ys + self.Ny/2 # posicao em pixel com relacao à origem da matriz
-        xx = xs + self.Nx/2 # posicao em pixel com relacao à origem da matriz
+        # projection effect by the spot being at a heliocentric angle from the center of the star - ellipticity
+        yy = ys + self.Ny/2 #pixel position with respect to the matrix origin
+        xx = xs + self.Nx/2 
 
         kk = np.arange(self.Ny * self.Nx)
         vx = kk-self.Nx*np.int64(1.*kk/self.Nx) - xx
         vy = kk/self.Ny - yy
 
-        # angulo de rotacao da mancha
-        anguloRot=np.abs(np.arctan(ys/xs))    # em radianos
+        # spot rotation angle
+        anguloRot=np.abs(np.arctan(ys/xs))    # in radians
         if self.latitudeMancha*self.longitudeMancha > 0: anguloRot=-anguloRot
 
         ii, = np.where((((vx*np.cos(anguloRot)-vy*np.sin(anguloRot))/np.cos(anguloHelio))**2+(vx*np.sin(anguloRot)+vy*np.cos(anguloRot))**2) < self.raioMancha**2)
@@ -146,72 +145,71 @@ class Estrela:
         #Plotar(self.tamanhoMatriz,self.estrela)
         error=0
         self.error=error
-        return self.estrela #retorna a decisão: se há manchas ou não
+        return self.estrela #returns the decision: whether there are stains or not
 
     #inserção de flares
     def faculas(self,estrela,count): 
         
-         #recebe como parâmetro a estrela atualizada
+        #receives as parameter the updated star
+        #not implemented 
         '''
-        Função onde são criadas as fáculas da estrela. Todos os parâmetros 
-        são relacionados ao tamanhdo da estrela, podendo o usuário escolher valores 
-        ou selecionar a opção default.
-        ---Parametros ainda nao definidos
-        *********INICIO DOS PARÂMETROS FÁCULA*******
-        :parâmetro 
-        :parâmetro 
-        :parâmetro 
-        :parâmetro
-        
+        Function where the faculae of the star are created. all parameters
+        are related to the size of the star, and the user can choose values
+        or select the default option.
+        ---Parameters not yet defined
+        ********START OF FACULA PARAMETERS*******
+        :parameter
+        :parameter
+        :parameter
+        :parameter
         '''
         error=0
         self.error=error
-        #vai sobrescrever a estrela que ele está criando, sendo ela a estrela ou a estrelaManchada.
         self.estrela=estrela
-        return self.estrela #retorna a decisão: se há fácula ou não 
+        #returns the decision: whether there is facula or not
+        return self.estrela
     
-    def flares(self,estrela,count): #recebe como parâmetro a estrela atualizada
+    def flares(self,estrela,count): 
+        #receives as parameter the updated star
+        #not implemented
         '''
-        Função onde são criadas os flares da estrela. Todos os parâmetros 
-        são relacionados ao tamanhdo da estrela, podendo o usuário escolher valores 
-        ou selecionar a opção default.
-        ---Parametros ainda nao definidos
-        *********INICIO DOS PARÂMETROS FLARES*******
-        :parâmetro 
-        :parâmetro 
-        :parâmetro 
-        :parâmetro
-        
+        Function where the star's flares are created. all parameters
+        are related to the size of the star, and the user can choose values
+        or select the default option.
+        ---Parameters not yet defined
+        ********START OF FLARES PARAMETERS*******
+        :parameter
+        :parameter
+        :parameter
+        :parameter
         '''
-
-       
         error=0
         self.error=error
-        #vai sobrescrever a estrela que ele está criando, sendo ela a estrela ou a estrelaManchada.
         self.estrela=estrela
-        return self.estrela #retorna a decisão: se há flare ou não 
+        #returns the decision: whether there is flares or not
+        return self.estrela
 
 
     def getNx(self):
         '''
-        Retorna parâmetro Nx, necessário para o Eclipse.
+        Returns Nx parameter, required by Eclipse.        
         '''
         return self.Nx
     def getNy(self):
         '''
-        Retorna parâmetro Ny, necessário para o Eclipse.
+        Returns Ny parameter, required by Eclipse.
         '''
         return self.Ny
 
     def getRaioStar(self):
         '''
-        Retorna o raio da estrela em pixel, necessário para o programa Eclipse, visto que o raio do planeta se dá em 
-        relação ao raio da estrela.
+        Returns the radius of the star in pixels, necessary for the Eclipse program, since the radius of the planet is given in
+        with respect to the radius of the star.
         '''
         return self.raio
     def getEstrela(self):
         '''
-        Retorna a estrela, plotada sem as manchas, necessário caso o usuário escolha a plotagem sem manchas.
+        Returns the star, plotted without the spots, necessary if the user chooses the plot without spots.
         '''
         return self.estrela
 
@@ -232,8 +230,8 @@ class Estrela:
 
     def getError(self):
         '''
-        Retorna valor de erro. Se não houverem erros, a variável assumirá 0. Se houverem erros, o programa manterá
-        o valor origem da variável (que é -1).
+        Returns error value. If there are no errors, the variable will assume 0. If there are errors, the program will keep
+        the source value of the variable (which is -1).
         '''
         return self.error
     def setStarName(self,starName):

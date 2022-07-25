@@ -6,133 +6,133 @@ from eclipse import Eclipse
 from verify import Validar,calSemiEixo,calculaLat
 
 '''
-main programado para profissionais e estudantes familiarizados com a área 
---- estrela ---
-parâmetro raio:: raio da estrela em pixel
-parâmetro intensidadeMaxima:: intensidade da estrela que sera plotada 
-parâmetro tamanhoMatriz:: tamanho em pixels da matriz estrela
-parâmetro raioStar:: raio da estrela em relação ao raio do sol
-parâmetro coeficienteHum:: coeficiente de escurecimento de limbo 1 (u1)
-parâmetro coeficienteDois:: coeficiente de escurecimento de limbo 2 (u2)
-objeto estrela_ :: é o objeto estrela onde é guardada a matriz estrela de acordo com os parâmetros. Chamadas das funções da classe
-estrela são feitas através dele.
-parâmetro estrela :: variavel que recebe o objeto estrela 
---- planeta ---
-parâmetro periodo:: periodo de órbita do planeta em dias 
-parâmetro anguloInclinacao:: ângulo de inclinação do planeta em graus
-parâmetro semieixoorbital:: semi-eixo orbital do planeta
-parâmetro semiEixoRaioStar:: conversão do semi-eixo orbital em relação ao raio da estrela 
-parâmetro raioPlanetaRstar:: conversão do raio do planeta em relação ao raio de Júpiter para em relação ao raio da estrela
----  mancha --- 
-parâmetro latsugerida:: latitude sugerida para a mancha
-parâmetro fa:: vetor com a área de cada mancha
-parâmetro fi:: vetor com a intensidade de cada mancha
-parâmetro li:: vetor com a longitude de cada mancha 
-parâmetro quantidade:: variavel que armazena a quantidade de manchas
-parâmetro r:: raio da mancha em relação ao raio da estrela
-parâmetro intensidadeMancha:: intensidade da mancha em relação a intensidade da estrela
-parâmetro lat:: latitude da mancha 
-parâmetro longt:: longitude da mancha 
-parâmetro raioMancha:: raio real da mancha
-parâmetro area::  area da mancha 
+main programmed for professionals and students familiar with the area
+--- star ---
+raio parameter: The radius of the star in pixels
+raioSun parameter: The radius of the star in units of Rsun
+intensidadeMaxima parameter: Intensity of the center of the star
+coeficienteHum parameter: Limbo darkening coefficient
+coeficienteDois parameter: Limbo darkening coefficient
+tamanhoMatriz parameter: Size of the matrix in which the star will be built
+estrela parameter: Star constructed with the limbo darkening coefficients
+star_ object :: is the star object where the star array is stored according to the parameters. Class function calls
+star are made through it.
+--- planet ---
+:periodo parameter: rotation period of the planet
+:semiEixoRaioStar parameter: semi axis of the planet in relation to the radius of the star
+:semiEixoUA parameter: semiaxis of the planet in UA
+:anguloInclinacao parameter: tilt angle of the planet
+:raioPlanetaRstar parameter: radius of the planet in relation to the radius of the star
+:raioPlanJup parameter: radius of the planet in relation to the radius of Jupiter
+---  spot --- 
+latsugerida parameter:: suggested latitude for the spot
+fa parameter:: vector with the area of each spot
+fi parameter :: vector with the intensity of each spot
+li parameter:: vector with the length of each spot
+quantidade parameter:: variable that stores the amount of stains
+r parameter:: radius of the spot in relation to the radius of the star
+intensidadeMancha parameter:: stain intensity in relation to the star's intensity
+lat parameter:: latitude of the spot
+longt parameter:: longitude of the spot
+raioMancha parameter:: actual smear radius
+area parameter:: area of the spot
 --- eclipse ---
-parâmetro eclipse:: variavel que guarda o objeto da classe eclipse que gera a curva de luz. Chamadas das funções da classe 
-Eclipse () são feitas através dele. 
-parâmetro tempoTransito:: tempo do transito do planeta 
-parâmetro curvaLuz:: matriz curva de luz que sera plotada em forma de grafico 
-parâmetro tempoHoras:: tempo do transito em horas
+eclipse parameter:: variable that holds the object of the eclipse class that generates the light curve. Class function calls
+    Eclipse() are done through it.
+tempoTransito parameter:: transit time of the planet
+curvaLuz parameter:: light curve matrix that will be plotted as a graph
+tempoHoras parameter:: transit time in hours
 '''
 
 raio= 373. #default (pixel)
 intensidadeMaxima=240 #default
 tamanhoMatriz = 856 #default
-raioSun=0.117 #raio da estrela em relacao ao raio do sol
-raioStar=raioSun*696340 #multiplicando pelo raio solar em Km 
+raioSun=0.117 #star's radius relative to the sun's radius
+raioStar=raioSun*696340 #multiplying by the solar radius in km
 coeficienteHum=0.65
 coeficienteDois=0.28
 
 
-#cria estrela
+#create star
 estrela_ = Estrela(raio,raioSun,intensidadeMaxima,coeficienteHum,coeficienteDois,tamanhoMatriz)
 
-Nx= estrela_.getNx() #Nx e Ny necessarios para a plotagem do eclipse
+Nx= estrela_.getNx() #Nx and Ny needed for eclipse plotting
 Ny= estrela_.getNy()
 dtor = np.pi/180.  
 
-periodo = 6.099 # em dias
-anguloInclinacao = 89.86  # em graus
+periodo = 6.099 # in days
+anguloInclinacao = 89.86  # in hours
 ecc = 0
 anom = 0 
-raioPlanJup = 0.0819 #em relação ao raio de jupiter
-raioPlanetaRstar = (raioPlanJup*69911)/raioStar #multiplicando pelo raio de jupiter em km 
+raioPlanJup = 0.0819 #relative to the radius of jupiter
+raioPlanetaRstar = (raioPlanJup*69911)/raioStar #multiplying by the radius of jupiter in km
 
 
-dec=int(input("Deseja calular o semieixo Orbital do planeta através da 3a LEI DE KEPLER? 1. Sim 2.Não |"))
+dec=int(input("Do you want to calculate the semi-orbital axis of the planet using KEPLER'S 3rd LAW? | 1. Yes |  2.No |"))
 if dec==1:
-    mass=0. #colocar massa da estrela em relação a massa do sol
+    mass=0. #put the mass of the star in relation to the mass of the sun
     semieixoorbital = calSemiEixo(periodo,mass)
     semiEixoRaioStar = ((semieixoorbital/1000)/raioStar)
-    #transforma em km para fazer em relação ao raio da estrela
+    #turns into km to do with respect to the radius of the star
 else:
     semiEixoUA = Validar('Semi eixo (em UA:)')
-    # em unidades de Rstar
+    # in units of RStar
     semiEixoRaioStar = ((1.469*(10**8))*semiEixoUA)/raioStar
-    #multiplicando pelas UA (transformando em Km) e convertendo em relacao ao raio da estrela 
+    #multiplying by the AU (turning into Km) and converting with respect to the radius of the star
 
 latsugerida = calculaLat(semiEixoRaioStar,anguloInclinacao)
-print("A latitude sugerida para que a mancha influencie na curva de luz da estrela é:", latsugerida)
+print("The suggested latitude for the spot to influence the star's light curve is:", latsugerida)
 
-#manchas
+#spots
 count = 0
-quantidade = 0 #quantidade de manchas desejadas, se quiser acrescentar, mude essa variavel
-#cria vetores do tamanho de quantidade para colocar os parametros das manchas
-fa = [0.]*quantidade #vetor area manchas
-fi = [0.]*quantidade #vetor intensidade manchas
-li = [0.]*quantidade #vetor longitude manchas
+quantidade = 0 #desired amount of spots, if you want to add, change this variable
+#creates quantity-sized arrays to place the smear parameters
+fa = [0.]*quantidade #array area spots
+fi = [0.]*quantidade #array intensity spots
+li = [0.]*quantidade #array longitude spots
 
-while count!=quantidade: #o laço ira rodar a quantidade de manchas selecionada pelo usuario
-    print('\033[1;35m\n\n══════════════════ Parâmetros da mancha ',count+1,'═══════════════════\n\n\033[m')
-    r = Validar('Digite o raio da mancha em função do raio da estrela em pixels:')
+while count!=quantidade: # the loop will rotate the number of spots selected by the user
+    print('\033[1;35m\n\n══════════════════ Spots Parameters',count+1,'═══════════════════\n\n\033[m')
+    r = Validar('Enter the spot radius as a function of the star radius in pixels:')
                 
-    intensidadeMancha= float(input('Digite a intensidade da mancha em função da intensidade máxima da estrela:'))
+    intensidadeMancha= float(input('Enter the intensity of the spot as a function of the maximum intensity of the star:'))
     fi[count]=intensidadeMancha
-    lat=float(input('Latitude da mancha:'))
-    longt=float(input('Longitude da mancha:'))
+    lat=float(input('Latitude of the spot:'))
+    longt=float(input('Longitude of the spot::'))
     li[count]=longt
 
     raioMancha= r*raioStar
     area = np.pi *(raioMancha**2)
     fa[count]= area
 
-    estrela=estrela_.manchas(r,intensidadeMancha,lat,longt) #recebe a escolha de se irá receber manchas ou não
+    estrela=estrela_.manchas(r,intensidadeMancha,lat,longt) #receives the choice of whether to receive stains or not
     count+=1
 
-#print vetor de intensidade, longitude e area da mancha para testes
-print("Intensidades:",fi)
+#print array of intensity, longitude and area of the spot for testingprint("Intensity:",fi)
 print("Longitudes:",li)
 print("Areas:",fa)
 
 estrela = estrela_.getEstrela()
-#para plotar a estrela 
-#caso nao queira plotar a estrela, comentar linhas abaixo
+#to plot the star
+#if you don't want to plot the star, comment lines below
 if (quantidade>0): #se manchas foram adicionadas. plotar
     estrela_.Plotar(tamanhoMatriz,estrela)
 
-#criando lua 
-lua = True #se nao quiser luas, mudar para False
+#creating moon
+lua = True #if you don't want moons, change it to False
 eclipse= Eclipse(Nx,Ny,raio,estrela)
 estrela_.Plotar(tamanhoMatriz,estrela)
 eclipse.geraTempoHoras()
 tempoHoras=eclipse.getTempoHoras()
-#instanciando LUA
-rmoon = 0.5 #em relacao ao raio da Terra
-rmoon = rmoon *6371 #multiplicando pelo R da terra em Km
-mass = 0.001 #em relacao a massa da Terra
+#instantiating MOON
+rmoon = 0.5 #relative to the radius of the earth
+rmoon = rmoon *6371 #multiplying by the R of the land in km
+mass = 0.001 #in relation to the mass of the earth
 mass = mass * (5.972*(10**24))
-massPlaneta = 0.002 #em relacao ao R de jupiter
-massPlaneta = massPlaneta * (1.898 *(10**27)) #passar para gramas por conta da constante G
+massPlaneta = 0.002 # relative to Jupiter's Radius
+massPlaneta = massPlaneta * (1.898 *(10**27)) # convert to grams because of the constant G
 G = (6.674184*(10**(-11)))
-perLua = 0.1 #em dias 
+perLua = 0.1 #in days
 distancia=((((perLua*24.*3600./2./np.pi)**2)*G*(massPlaneta+mass))**(1./3))/raioStar
 distancia = distancia/100
 moon = eclipse.criarLua(rmoon,mass,raio,raioStar,tempoHoras,anguloInclinacao,periodo,distancia)
@@ -144,12 +144,12 @@ estrela = estrela_.getEstrela()
 eclipse.criarEclipse(semiEixoRaioStar, semiEixoUA, raioPlanetaRstar,raioPlanJup,periodo,anguloInclinacao,lua,ecc,anom)
 
 
-print ("Tempo Total (Trânsito):",eclipse.getTempoTransito()) 
+print ("Total Time (Transit):",eclipse.getTempoTransito()) 
 tempoTransito=eclipse.getTempoTransito()
 curvaLuz=eclipse.getCurvaLuz()
 tempoHoras=eclipse.getTempoHoras()
 
-#Plotagem da curva de luz 
+#Light curve plot
 pyplot.plot(tempoHoras,curvaLuz)
 pyplot.axis([-tempoTransito/2,tempoTransito/2,min(curvaLuz)-0.001,1.001])                       
 pyplot.show()
