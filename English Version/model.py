@@ -37,7 +37,7 @@ import timeit
 from IPython.display import display, Math
 from IPython.display import display, Math
 
-from estrela_nv1 import estrela #estrela e eclipse:: extensões de programas auxiliares que realizam o cálculo da curva de luz.
+from estrela_nv1 import estrela #star and eclipse:: extensions of auxiliary programs that perform the calculation of the light curve.
 from eclipse_nv1 import Eclipse
 from verify import Validar, calSemiEixo, converte
 
@@ -54,30 +54,30 @@ class Modelo:
 
     def __init__(self,estrela, eclipse):
         '''
-        parâmetro estrela :: classe estrela 
-        parâmetro eclipse :: classe Eclipse
-        '''
-        #coletando objetos de estrela 
+         star parameter :: star class
+         eclipse parameter::eclipse class
+         '''
+         #collecting star objects
         self.u1 = estrela.getu1()
         self.u2 = estrela.getu2()
         self.n = estrela.getTamanhoMatriz()
-        self.r = estrela.getRaioStar() #raio da estrela em pixel 
-        self.r_Sun = estrela.getRaioSun() #raio da estrela em RSun
+        self.r = estrela.getRaioStar() #star radius in pixel
+        self.r_Sun = estrela.getRaioSun() #star radius in Rsun
         self.mx = estrela.getIntensidadeMaxima()
-        self.star_name = estrela.getStarName() #nome da estrela
-        self.cadence = estrela.getCadence() #cadencia da estrela (short ou long)
+        self.star_name = estrela.getStarName() #star name
+        self.cadence = estrela.getCadence() #star cadence (short or long)
 
-        #coletando objetos de Eclipse
+        #collecting Eclipse objects
         self.raioPlan = eclipse.getRaioPlan()
         self.R_jup = eclipse.getRplanJup()
-        self.AU = eclipse.getSemiEixo() #semieixo em UA
-        self.semiEixoRaioStar = eclipse.getsemiEixoRaioStar() #semieixo em relacao ao raio da estrela
+        self.AU = eclipse.getSemiEixo() #axle shaft in AU
+        self.semiEixoRaioStar = eclipse.getsemiEixoRaioStar() #semi-axis with respect to the radius of the star
         self.porb = eclipse.getPeriodo()
         self.inc = eclipse.getInc()
         self.ecc,self.anom = eclipse.getEccAnom()
         self.lua = eclipse.getLua()
 
-        #variaveis que serao retornadas a partir da função rd_data
+        #variables that will be returned from the rd_data function
         self.time = 0.
         self.flux = 0.
         self.flux_err = 0.
@@ -86,24 +86,24 @@ class Modelo:
     def rd_data(self,plot,save_data):
                 
         ''' 
-        Funcao criada para acessar os dados de curva de luz de estrelas e extrair o tempo e fluxo. 
+        Function created to access starlight curve data and extract time and flux.
         
-        lightkurve packeage:: utilizado para abrir as curvas de Luz do Kepler e
-        também abrir curva de luz do TESS/ curvas de luz em geral
-        Documentação:: https://docs.lightkurve.org/api/index.html documentação do uso do lightkurve
+        lightkurve packeage:: used to open the Kepler Light curves and
+        also open TESS light curve/ general light curves
+        Documentation:: https://docs.lightkurve.org/api/index.html documentation of using lightkurve
         
-        outputs esperados:: time, flux 
+        expected outputs::time, flux
         
-        plot = 1 (plota a curva de luz, para não plotar basta digitar qualquer valor)
-        save_data = 1 plota a curva de luz(para não plotar, basta digitar qualquer valor)
+        plot = 1 (plots the light curve, to not plot just enter any value)
+        save_data = 1 plots the light curve (to not plot, just enter any value)
         '''
     ##--------------------------------------------------------------------------------------------------------------------------------------------------##
-    # utiiza-se o PDCSAP_FLUX porque será realizado a análise no trânsito.
+    # PDCSAP_FLUX is used because the analysis will be carried out in transit.
         lc = search_lightcurvefile(self.star_name, cadence = self.cadence).download_all().SAP_FLUX
-        time = [] # time = array com os dados de tempo
-        flux = [] # flux = array com os dados de fluxo
-        flux_err = [] # flux_err = array com os dados de erro do fluxo
-        time_temp = [] #_variavel temporaria
+        time = [] # time = array with the time data
+        flux = [] # flux = array with the flux data
+        flux_err = [] # flux_err = array with the flow error data
+        time_temp = [] #temporary variables 
         flux_temp = []
         flux_err_temp = []
 
@@ -114,16 +114,16 @@ class Modelo:
 
         for i in range(0, len(lc)-1):   
             
-    # Limita os índices aos valores de tempo lidos
+    # Limit indices to read time values
             flux_temp[i] = flux_temp[i][0:time_temp[i].size]
             flux_err_temp[i] = flux_err_temp[i][0:time_temp[i].size]
         
-    # Elimina todos os valores NaN (Not a Number) dos dados
+    # Deletes all NaN (Not a Number) values from the data
             time_temp[i] = time_temp[i][~numpy.isnan(flux_err_temp[i])]
             flux_temp[i] = flux_temp[i][~numpy.isnan(flux_err_temp[i])]
             flux_err_temp[i] = flux_err_temp[i][~numpy.isnan(flux_err_temp[i])]
         
-    # Normaliza cada quarter
+    # Normalize each quarter
             flux_err_temp[i] = flux_err_temp[i]/ abs(numpy.median(flux_temp[i]))
             flux_temp[i] = flux_temp[i]/ abs(numpy.median(flux_temp[i]))
 
@@ -132,7 +132,7 @@ class Modelo:
             time = numpy.append(time, time_temp[i])
             flux_err = numpy.append(flux_err,flux_err_temp[i])
         
-    #plot da curva de luz completa
+    #plot of the complete light curve
         if plot == (1):
             plt.rcParams['figure.figsize'] = 10,4
             graf1, ax = plt.subplots()
@@ -148,7 +148,7 @@ class Modelo:
             
             ax.errorbar(time, flux, yerr = flux_err, fmt = '.k', capsize = 0,alpha = 0.5)
             
-    #salva os dados em um arquivo .dat
+    #save the data to a .dat file
         if save_data == 1:
             numpy.savetxt('%s_LC.dat'%self.star_name, numpy.c_[(time, flux, flux_err)])
 
@@ -161,17 +161,17 @@ class Modelo:
     def det_x0(self, plot):
         
         '''
-        Função para obter o centro do primeiro transito. 
-        porb é utilizado para criar uma curva de luz em fase é aplicado um smooth na curva de luz em fase.
-        parâmetro time::
-        parâmetro flux:: 
-        parâmetro porb:: periodo orbital do planeta (per em dias)
-        parâmetro plot:: 
+        Function to get the center of the first transit.
+        porb is used to create a phased light curve a smooth is applied to the phased light curve.
+        time parameter::
+        flux parameter::
+        porb parameter:: orbital period of the planet (per in days)
+        plot parameter::
         
         returns
-        x0 = valor do centro do primeiro transito 
-        nt = numero de transitos possiveis 
-        plot = 1 (plota a curva de luz, para nao plotar basta digitar qualquer valor)
+         x0 = value of the center of the first transit
+         nt = number of possible transits
+         plot = 1 (plots the light curve, to not plot just type any value)
         '''
         time = self.time 
         porb = self.porb
@@ -181,7 +181,7 @@ class Modelo:
         jj = numpy.argsort(phase)
         ff = phase[jj]
 
-        smoothed_LC = scipy.ndimage.filters.uniform_filter(flux[jj], size = 100) # equivalente ao smooth do idl com edge_truncade
+        smoothed_LC = scipy.ndimage.filters.uniform_filter(flux[jj], size = 100) # equivalent to idl's smooth with edge_truncade
         smoothed_LC[0:200] = 1
         smoothed_LC[len(flux[jj])-200:len(flux[jj])] = 1
         x = phase[jj]
@@ -192,13 +192,13 @@ class Modelo:
 
         x1 = min(x[kk])
         x2 = max(x[kk])
-        fa0 = (x1 + x2)/ 2 # valor central dos transitos em fase
+        fa0 = (x1 + x2)/ 2 # central value of phased transits
 
-        self.x0 = (numpy.fix(time[0] / porb) + fa0) * porb # tempo central do primeiro transito
+        self.x0 = (numpy.fix(time[0] / porb) + fa0) * porb # first transit center time
         
-        self.nt = numpy.fix(max(time - time[0])/ porb) + 1 # numero de transitos possiveis
+        self.nt = numpy.fix(max(time - time[0])/ porb) + 1 # number of possible transits
 
-        #plot da curva de luz completa
+        # plot of the complete light curve
         if plot == 1:
         
             plt.rcParams['figure.figsize'] = 10,8
@@ -215,7 +215,7 @@ class Modelo:
             ax[0].plot(phase[jj], smoothed_LC, "r.", ms = 2)        
         
             ax[1].set_ylim(0.9, 1.1)
-            ax[1].set_title("x0 = tempo central do primeiro transito")
+            ax[1].set_title("x0 = first transit center time")
         
             ax[1].set_xlabel('Time (BJD - 2454833)')
             ax[1].set_ylabel('Normalized Flux')
@@ -232,17 +232,16 @@ class Modelo:
     #--------------------------------------------------#
     def limb(self, plot):
         '''
-        Funcao que gera uma estrela sintetizada com 
-        obscurecimento de limbo dado por 1-u1*(1-cos(mu))-u2*(1-cos(mu))^2), onde mu=angulo heliocentrico
+        Function that generates a synthesized star with
+        limb obscuration given by 1-u1*(1-cos(mu))-u2*(1-cos(mu))^2), where mu=heliocentric angle
         
-        -- coeficiente de escurecimento de limbo --
-        parâmetro u1 :: coeficiente linear 
-        parâmetro u2 :: coeficiente do termo quadratico
+        -- limbo darkening coefficient --
+        parameter u1 :: linear coefficient
+        parameter u2 :: coefficient of the quadratic term
         
-        returns 
-        parâmetro wl:: matriz com a intensidade da estrela
-        se plot = 1, plota o perfil da estrela (para não plotar, basta digitar qualquer valor)
-
+        returns
+         parameter wl:: array with star intensity
+         if plot = 1, plot the star profile (to not plot, just enter any value)
         '''
         #PERGUNTAR
 
@@ -277,30 +276,29 @@ class Modelo:
 
     def eclipse_model(self):
         '''
-        Chamada de programas auxiliares para a criacao do modelo da curva de luz, podendo ela conter:
-        - Um planeta ou mais 
-        - Uma mancha ou mais 
-        - Uma lua ou mais 
+        Call of auxiliary programs for the creation of the light curve model, which may contain:
+         - One planet or more
+         - One stain or more
+         - A moon or more
         
-        parâmetro u1 :: coeficiente de escurecimento de limbo 1
-        parâmetro u2 :: coeficiente de escurecimento de limbo 1
-        parâmetro per :: periodo do transito em dias 
-        parâmetro a :: semieixo em UA 
-        parâmetro inc :: ângulo de inclinacao em graus 
-        parâmetro rp :: raio do planeta em relacao ao raio da estrela 
+         parameter u1 :: limbo darkening coefficient 1
+         parameter u2 :: limbo darkening coefficient 1
+         parameter per:: transit period in days
+         parameter a :: semi-axis in UA
+         parameter inc:: tilt angle in degrees
+         parameter rp :: radius of the planet in relation to the radius of the star
         
-        returns 
-        parâmetro lc_model :: curva de luz 
-        parâmetro ts_model :: tempo do trânsito em Horas
-        
+         returns
+         lc_model parameter:: light curve
+         ts_model parameter:: transit time in Hours
         '''
-        estrela_1 = estrela(self.r,self.r_Sun, self.mx , self.u1, self.u2, self.n)  #cria o objeto estrela 
-        Nx1 = estrela_1.getNx() #coleta parametros da matriz estrela 
+        estrela_1 = estrela(self.r,self.r_Sun, self.mx , self.u1, self.u2, self.n)  # create the star object
+        Nx1 = estrela_1.getNx() # collect parameters from the star array
         Ny1 = estrela_1.getNy()
-        raioEstrelaPixel1 = estrela_1.getRaioStar() #coleta raio da estrela em pixel 
-        estrelaManchada1 = estrela_1.getEstrela() #coleta estrela manchada 
+        raioEstrelaPixel1 = estrela_1.getRaioStar() # collect star ray in pixel
+        estrelaManchada1 = estrela_1.getEstrela() # collect spotted star
 
-        eclipse1 = Eclipse(Nx1, Ny1, raioEstrelaPixel1, estrelaManchada1)  #cria o objeto eclipse
+        eclipse1 = Eclipse(Nx1, Ny1, raioEstrelaPixel1, estrelaManchada1)  #create the eclipse object
 
         eclipse1.setTempoHoras(1.)
 
@@ -330,19 +328,19 @@ class Tratamento :
     def __init__(self,modelo):
 
         '''
-        Funcao para extrair os transitos individualmente da curva de luz
+        Function to extract the traffics individually from the light curve
         
-        parâmetro time :: tempo da curva de luz total
-        parâmetro flux :: fluxo da curva de luz total
-        parâmetro flux_err :: erro do fluxo
-        parâmetro u1 :: coeficiente de escurecimento de limbo 1
-        parâmetro u2 :: coeficiente de escurecimento de limbo 2
-        parâmetro porb :: periodo da órbita em dias 
-        parâmetro AU :: semieixo orbital em UA
-        parâmetro raioPlan :: raio do planeta em relaçao ao raio da estrela
-        parâmetro inc :: angulo de inclinacao em graus 
-        parâmetro x0 :: 
-        parâmetro nt :: 
+        time parameter :: total light curve time
+        flux parameter :: total light curve flux
+        flux_err parameter:: flux error
+        parameter u1 :: limbo darkening coefficient 1
+        parameter u2 :: limbo 2 darkening coefficient
+        parameter porb :: orbit period in days
+        parameter AU :: orbital semi-axis in UA
+        parameter radiusPlan:: radius of the planet in relation to the radius of the star
+        parameter inc:: tilt angle in degrees
+        parameter x0 ::
+        parameter nt ::
         '''
         self.modelo = modelo
         self.u1,self.u2,self.porb,self.time,self.flux,self.flux_err,self.raioPlan,self.AU,self.inc,self.x0,self.nt,self.ts_model = modelo.retornaParametros()
@@ -350,12 +348,12 @@ class Tratamento :
     def cut_transit_single(self):
         
         '''
-        returns 
+        returns
         
-        parâmetro dur ::  duracao do transito em horas
-        parâmetro t_split  :: tempo em horas (igual para todos os transitos)
-        parâmetro n_f_split ::curva de luz do transito normalizada
-        parâmetro n_f_err_split :: erro do fluxo normalizado
+        parameter dur :: duration of transit in hours
+        parameter t_split :: time in hours (same for all transits)
+        parameter n_f_split ::normalized traffic light curve
+        parameter n_f_err_split :: normalized flow error
         '''
 
         if self.u1 == 999:
@@ -366,7 +364,7 @@ class Tratamento :
         self.wl, self.u1, self.u2 = self.modelo.limb(0)    
         lc0, ts0 = self.modelo.eclipse_model()
         
-        #duração do transito em horas
+        # duration of transit in hours
         
         x = ts0
         y = 1 - lc0
@@ -375,12 +373,12 @@ class Tratamento :
         kk = numpy.where(y >= yh)
         x1 = min(x[kk])
         x2 = max(x[kk])
-        meio = (x1 + x2)/ 2 # valor central dos transitos em fase
-        self.dur = 2 * numpy.abs(ts0[min(numpy.where(lc0 < 1))[0]]) #duração total do transito
-        # em horas
+        meio = (x1 + x2)/ 2 # center value of phased transits
+        self.dur = 2 * numpy.abs(ts0[min(numpy.where(lc0 < 1))[0]]) # total transit time
+        # in hours
         
-        # dado o valor central de cada transito, determino pontos (+-) a uma distancia de 45%
-        # do período. 
+        # given the central value of each transit, I determine points (+-) at a distance of 45%
+        # of the period. 
         mm = []
         mp = []
         ttt = []
@@ -389,29 +387,27 @@ class Tratamento :
             mm.append(self.x0 + self.porb*i - (self.porb*0.45))
             mp.append(self.x0 + self.porb*i + (self.porb*0.45))
             
-        # indice que cada valor representa no array do tempo
+        # index what each value represents in the time array
         for i in range(0, int(self.nt)):
             ttt.append(numpy.where((self.time >= mm[i]) & (self.time <= mp[i])))
         
-        # separo os arrays de tempo e fluxo com esses valores. 
-        
+        # separate the time and flow arrays with these values.
         self.t_split = []
         f_split = []
         f_err_split = []
         for i in range(0, int(self.nt)):
-            self.t_split.append((self.time[ttt[i]]-self.x0-(self.porb*i))*24)   # tempo em horas com o 
-            # meio do transito central em zero
+            self.t_split.append((self.time[ttt[i]]-self.x0-(self.porb*i))*24)   # time in hours with the transit center = 0
             f_split.append(self.flux[ttt[i]])         
             f_err_split.append(self.flux_err[ttt[i]])  
             
-        # eliminação do slope
+        # slope elimination
         
-        size = [] #quantidade de pontos presentes em até 3* a duração do transito
+        size = [] # number of points present in up to 3* the transit duration
         for u in range(int(self.nt)):
             size.append(len(numpy.where(numpy.sort(numpy.abs(self.t_split[i])) < self.dur*3.)[0]))  
             
-        # considerado dados que apresentam fluxo maior que 0 
-        # e dados de tempo com quantidade de pontos com 0.9*numpy.mean(size)
+        # considered data that present a flow greater than 0
+        # and time data with amount of points with 0.9*numpy.mean(size)
         self.n_f_split = []
         n_f_err_split = []
         for i in range(0, int(self.nt)):
@@ -424,7 +420,7 @@ class Tratamento :
                 self.n_f_split.append(f_split[i])
                 n_f_err_split.append(f_err_split[i])
                 
-        #renormalização
+        # renormalization
         w_flux = []
         for i in range(0, int(self.nt)):
             if len((self.n_f_split[i] > 0) & (len(numpy.where(numpy.sort(numpy.abs(self.t_split[i])) < self.dur*3.)[0]) > numpy.mean(size)*.9)):
@@ -443,15 +439,15 @@ class Tratamento :
     def transit_smooth(self,ntransit, selection):
     
         '''
-        Funcao para uma curva smooth com n transitos
+        Function for a smooth curve with n transits
         
-        parâmetro ntransit :: numero de transitos para usar na curva smoothed
-        parâmetro selection :: 0, usa uma escolha randomica de todos os transitos
-        parâmetro se selection :: 1, usa os transitos mais fundos  
+        parameter ntransit :: number of transits to use in the smoothed curve
+        parameter selection :: 0, use a random choice of all transits
+        parameter deepest_transit :: 1, use the deepest transits
         
         returns
-        parâmetro time_phased[bb] :: tempo 
-        parâmetro smoothed_LC[bb] :: curva de luz Smoothed
+         parameter time_phased[bb] :: time
+         smoothed_LC[bb] parameter:: Smoothed light curve
         '''
         
         if selection == 0:
@@ -477,7 +473,7 @@ class Tratamento :
         jj = numpy.argsort(phase)
         ff = phase[jj]
 
-        self.smoothed_LC = scipy.ndimage.filters.uniform_filter(lc[jj], size = 100) # equivalente ao smooth do idl com edge_truncade
+        self.smoothed_LC = scipy.ndimage.filters.uniform_filter(lc[jj], size = 100) # equivalent to idl's smooth with edge_truncade
 
         x = phase[jj]
         y = 1 - self.smoothed_LC
@@ -487,7 +483,7 @@ class Tratamento :
 
         x1 = min(x[kk])
         x2 = max(x[kk])
-        fa0 = (x1 + x2)/ 2 # valor central dos transitos em fase
+        fa0 = (x1 + x2)/ 2 # central value of phased transits
 
         self.time_phased = (ff - fa0)*self.porb*24
 
