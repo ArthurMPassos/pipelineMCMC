@@ -28,7 +28,7 @@ from moon import Moon
 from verify import Validar
 #from keplerAux import keplerfunc  #biblioteca auxiliar caso a biblioteca kepler nao funcione
 import matplotlib.animation as animation
-import kepler #para o calculo de orbitas excentricas (pip install kepler)
+from kepler._core import solve #para o calculo de orbitas excentricas (pip install kepler)
 import os
 from ctypes import *
 from numpy.ctypeslib import ndpointer
@@ -61,9 +61,9 @@ class Eclipse:
         '''
         Função chamada na Main para o cálculo do tempo de Trânsito em Horas
         '''
-        x=int(input("Intervalo de tempo=1. Deseja alterar? 1. SIM | 2. NÃO:"))
+        x=int(input("Intervalo de tempo=1. Deseja alterar? 1. SIM | 2. NÃO: "))
         if x ==1:
-            self.intervaloTempo=float(input('Digite o intervalo de tempo em minutos:'))
+            self.intervaloTempo=float(input('Digite o intervalo de tempo em minutos: '))
         elif x==2:
             self.intervaloTempo = 1.   # em minutos
 
@@ -151,7 +151,8 @@ class Eclipse:
         m = nk*(self.tempoHoras-Tp)     # em radianos
 
         # calculando a anomalia excentrica em radianos
-        eccanom = kepler.solve(m,ecc)  # subrotina em anexo
+        
+        eccanom = solve(m,ecc)  # subrotina em anexo
         xs=semiEixoPixel*(np.cos(eccanom)-ecc)
         ys=semiEixoPixel*(math.sqrt(1-(ecc**2))*np.sin(eccanom))
 
@@ -232,19 +233,24 @@ class Eclipse:
         # Matriz kk auxiliar para ser passada como parametro para o script em C
         kk2 = (c_double * len(kk))(*kk)
 
-        # Verifica se o Python é 32 ou 64 bit
-        if(platform.architecture()[0] == "32bit"):
-            my_func = WinDLL('scripts/func32.dll', winmode = 0x8)
-        elif(platform.architecture()[0] == "64bit"):
-            my_func = WinDLL('scripts/func64.dll', winmode = 0x8)
+        # Verifica o SO e se o Python é 32 ou 64 bit
+        if(platform.system() == "Windows"):
+            if(platform.architecture()[0] == "32bit"):
+                my_func = WinDLL('scripts/func32.dll', winmode = 0x8)
+            elif(platform.architecture()[0] == "64bit"):
+                my_func = WinDLL('scripts/func64.dll', winmode = 0x8)
+        elif(platform.system() == "Darwin"):
+            my_func = cdll.LoadLibrary('scripts/func64.dylib')
+        else:
+            my_func = CDLL('scripts/func64.so')
 
         # Prepara os tipos de cada variável dos argumentos e do retorno da função do calculo da curva de luz
         my_func.curvaLuz.restype = c_double
-        my_func.curvaLuz.argtypes = c_double,c_double,c_int,c_int,POINTER(c_double),POINTER(c_double),c_double
+        my_func.curvaLuz.argtypes = c_double,c_double,c_int,c_double,POINTER(c_double),POINTER(c_double),c_double
         my_func.curvaLuzLua.restype = c_double
-        my_func.curvaLuzLua.argtypes = c_double,c_double,c_double,c_double,c_double,c_int,c_int,POINTER(c_double),POINTER(c_double),c_double
+        my_func.curvaLuzLua.argtypes = c_double,c_double,c_double,c_double,c_double,c_int,c_double,POINTER(c_double),POINTER(c_double),c_double
 
-        raioPlanetaPixel = int(raioPlanetaPixel)
+        raioPlanetaPixel = float(raioPlanetaPixel)
 
         '''
         Criação da matriz para plotagem:
